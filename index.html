@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>برنامج جودة الإذاعة المدرسية ، الفصل الدراسي الأول</title>
+<style>
+body { font-family: 'Tahoma', sans-serif; margin: 0; background: #f4f6f9; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: #2c3e50; color: white; }
+.school-info { text-align: right; display: flex; align-items: center; gap: 15px; }
+.school-info img { width: 70px; height: 70px; object-fit: contain; }
+.school-info-text h1 { margin: 0; font-size: 22px; }
+.school-info-text h2 { margin: 5px 0; font-size: 16px; color: #ddd; }
+.staff-info { text-align: left; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+h2.page-title { text-align: center; font-size: 22px; margin: 25px 0; color: #333; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; padding: 0 20px; }
+.card { background: white; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 10px; text-align: center; cursor: pointer; transition: transform 0.2s; }
+.card:hover { transform: scale(1.05); }
+.card img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 8px; }
+.dropdown { display: none; margin-top: 10px; background: #fafafa; border: 1px solid #ddd; padding: 8px; border-radius: 8px; font-size: 13px; text-align: right; }
+.event { margin-bottom: 15px; }
+.progress { height: 8px; background: #eee; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+.progress-bar { height: 100%; width: 0%; transition: width 0.5s; }
+.p-green { background: #4caf50; }
+.p-blue { background: #2196f3; }
+.p-orange { background: #ff9800; }
+.p-purple { background: #9c27b0; }
+.slider-container { margin-top: 5px; display: flex; align-items: center; gap: 10px; justify-content: center; }
+.percent { font-size: 13px; font-weight: bold; color: #333; }
+table { width: 95%; margin: 30px auto; border-collapse: collapse; background: white; }
+table, th, td { border: 1px solid #ccc; }
+th, td { padding: 8px; text-align: center; }
+footer { text-align: center; margin: 30px 0; font-size: 14px; color: #555; }
+</style>
+<script>
+function toggleDropdown(id) {
+  const dropdown = document.getElementById(id);
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+</script>
+</head>
+<body>
+<header>
+  <div class="school-info">
+<img src="https://i.postimg.cc/3RrztFm3/logo.webp" alt="شعار المدرسة"
+     style="width: 150px; filter: grayscale(100%) brightness(0) invert(1);">
+    <div class="school-info-text">
+      <h1>ثانوية الفيصلية الأهلية - فرع الفلاح</h1>
+      <h2>العام الدراسي 1447هـ</h2>
+    </div>
+<div style="text-align:center; position:relative; font-family:Arial, sans-serif;">
+  <div style="font-size:16px; margin-bottom:4px; letter-spacing:1px;">⏰ الإذاعة القادمة</div>
+  <div style="display:flex; align-items:center; justify-content:center;">
+    <div id="microphone" style="font-size:24px; margin-right:8px; animation: micBounce 1s infinite;">🎤</div>
+    <div id="countdown" style="font-size:28px; font-weight:bold; letter-spacing:2px; padding:5px 15px; border-radius:8px; background: linear-gradient(90deg, #ff9a9e, #fad0c4); color:white; box-shadow:0 4px 8px rgba(0,0,0,0.2); display:inline-block;">00:00:00</div>
+  </div>
+</div>
+
+<style>
+@keyframes micBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes micFlash {
+  0%, 100% { text-shadow: 0 0 5px yellow, 0 0 10px yellow; }
+  50% { text-shadow: 0 0 15px orange, 0 0 25px red; }
+}
+</style>
+
+<script>
+const countdownDuration = 26 * 60 * 60 * 1000; // 26 ساعة بالمللي ثانية
+
+// الحصول على endTime من localStorage أو إنشاؤه جديد
+let endTime = localStorage.getItem('broadcastEndTime');
+if (!endTime) {
+  endTime = new Date().getTime() + countdownDuration;
+  localStorage.setItem('broadcastEndTime', endTime);
+} else {
+  endTime = parseInt(endTime);
+}
+
+function updateCountdown() {
+  const now = new Date().getTime();
+  let diff = endTime - now;
+
+  if (diff <= 0) {
+    // إعادة ضبط العداد بعد انتهاء المدة
+    endTime = now + countdownDuration;
+    localStorage.setItem('broadcastEndTime', endTime);
+    diff = countdownDuration;
+  }
+
+  const hours = Math.floor(diff / 1000 / 60 / 60);
+  const minutes = Math.floor((diff / 1000 / 60) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  document.getElementById('countdown').textContent =
+    String(hours).padStart(2,'0') + ':' +
+    String(minutes).padStart(2,'0') + ':' +
+    String(seconds).padStart(2,'0');
+
+  const micEl = document.getElementById('microphone');
+  if(diff / 1000 <= 10){
+    micEl.style.animation = 'micBounce 1s infinite, micFlash 0.5s infinite';
+  } else {
+    micEl.style.animation = 'micBounce 1s infinite';
+  }
+}
+
+setInterval(updateCountdown, 1000);
+updateCountdown();
+</script>
+ 
+  </div>
+
+  <div class="staff-info">
+    <span>مدير المدرسة: منصور سعيد الرامي</span>
+    <span>رائد النشاط: عبدالله صالح الزهراني</span>
+    <span>منسق الإذاعة: مصطفى شحات نافع</span>
+  </div>
+
+</header>
+
+<style>
+<style>
+.page-title {
+    font-size: 90px;         /* حجم العنوان الجديد */
+    font-weight: bold;       /* تكثيف الخط */
+    text-align: center;      /* توسيط العنوان */
+    color: #1E90FF;          /* لون أزرق جذاب */
+    text-shadow: 8px 8px 9px #888888; /* تأثير ظل خفيف للنص */
+    margin-top: 20px;        /* مسافة فوق العنوان */
+    margin-bottom: 20px;     /* مسافة تحت العنوان */
+}
+</style>
+
+<h2 class="page-title">برنامج جودة الإذاعة المدرسية، الفصل الدراسي الأول 1447هـ</h2>
+
+<section class="cards">
+
+<!-- هنا تبدأ البطاقات لكل المعلمين -->
+
+<!-- أ. أحمد إبراهيم علي قنديل -->
+<div class="card" onclick="toggleDropdown('t1')">
+  <img src="https://i.postimg.cc/QN5Dy0Wq/image.jpg" alt="أيقونة المعلم">
+  <div>أ. أحمد إبراهيم علي قنديل</div>
+  <div id="t1" class="dropdown">
+    <div class="event"><p>📅 الأحد 29/3 : اليوم الوطني السعودي "انتماء"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأحد 4/5 : العلوم والتقنية STEAM "ابتكار"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأحد 1/7 : الاختبارات الفصلية "استعد"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. أحمد الحسينى محمد كساب -->
+<div class="card" onclick="toggleDropdown('t2')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. أحمد الحسينى محمد كساب</div>
+  <div id="t2" class="dropdown">
+    <div class="event"><p>📅 الإثنين 23/3 : قيمنا حياة "أصالة"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الإثنين 12/5 : الموهبة والإبداع "تميز"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. أحمد محمود أحمد نصر -->
+<div class="card" onclick="toggleDropdown('t3')">
+  <img src="https://i.postimg.cc/dV7cG6vd/image.jpg" alt="أيقونة المعلم">
+  <div>أ. أحمد محمود أحمد نصر</div>
+  <div id="t3" class="dropdown">
+    <div class="event"><p>📅 الخميس 26/3 : قيمنا حياة "أصالة"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الخميس 15/5 : الموهبة والإبداع "تميز"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. أحمد مصطفى عبد الفتاح زهران -->
+<div class="card" onclick="toggleDropdown('t4')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. أحمد مصطفى عبد الفتاح زهران</div>
+  <div id="t4" class="dropdown">
+    <div class="event"><p>📅 الخميس 12/3 : افتتاح العام الدراسي الجديد "انطلاقة"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الإثنين 28/4 : الرياضات الإلكترونية والذهنية "تحدي"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الإثنين 17/6 : إنترنت الأشياء IOT "اتصال"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. أحمد طه محمود محمد -->
+<div class="card" onclick="toggleDropdown('t5')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. أحمد طه محمود محمد</div>
+  <div id="t5" class="dropdown">
+    <div class="event"><p>📅 الخميس 19/3 : التطوع الطلابي "عطاء"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الخميس 8/5 : العلوم والتقنية STEAM "ابتكار"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الخميس 5/7 : الاختبارات الفصلية "استعد"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+<!-- أ. عبد الله مفرح المالكي -->
+<div class="card" onclick="toggleDropdown('t6')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. عبد الله مفرح المالكي</div>
+  <div id="t6" class="dropdown">
+    <div class="event"><p>📅 الخميس 10/4 : رواد فضاء المستقبل "آفاق"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الخميس 22/5 : اكتشف مسارك "طموح"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. عبد الله مرزوق بن فرحان المطيري -->
+<div class="card" onclick="toggleDropdown('t7')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. عبد الله مرزوق بن فرحان المطيري</div>
+  <div id="t7" class="dropdown">
+    <div class="event"><p>📅 الأربعاء 18/3 : التطوع الطلابي "عطاء"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأربعاء 7/5 : العلوم والتقنية STEAM "ابتكار"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأربعاء 4/7 : الاختبارات الفصلية "استعد"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. عبد العزيز حمود الشهراني -->
+<div class="card" onclick="toggleDropdown('t8')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. عبد العزيز حمود الشهراني</div>
+  <div id="t8" class="dropdown">
+    <div class="event"><p>📅 الخميس 3/4 : اليوم الوطني السعودي "انتماء"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأحد 18/5 : اكتشف مسارك "طموح"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. عبده عبد الله أحمد بوكر -->
+<div class="card" onclick="toggleDropdown('t9')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. عبده عبد الله أحمد بوكر</div>
+  <div id="t9" class="dropdown">
+    <div class="event"><p>📅 الأحد 27/4 : الرياضات الإلكترونية والذهنية "تحدي"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأربعاء 21/5 : اكتشف مسارك "طموح"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأحد 16/6 : إنترنت الأشياء IOT "اتصال"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. السيد عبد العاطي خطاب محمد -->
+<div class="card" onclick="toggleDropdown('t10')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. السيد عبد العاطي خطاب محمد</div>
+  <div id="t10" class="dropdown">
+    <div class="event"><p>📅 الإثنين 21/4 : سفير البيئة والمجتمع "مستدام"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأحد 8/7 : ختام برنامج الإذاعة المدرسية "حصاد"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. علي محمد علي -->
+<div class="card" onclick="toggleDropdown('t11')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. علي محمد علي</div>
+  <div id="t11" class="dropdown">
+    <div class="event"><p>📅 الإثنين 14/4 : يوم المعلم "عرفان"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الإثنين 26/5 : أسبوع القراءة العربي "معرفة"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. فارس بخيت الحمراني -->
+<div class="card" onclick="toggleDropdown('t12')">
+  <img src="https://i.postimg.cc/DzLVMzSw/image.jpg" alt="أيقونة المعلم">
+  <div>أ. فارس بخيت الحمراني</div>
+  <div id="t12" class="dropdown">
+    <div class="event"><p>📅 الثلاثاء 15/4 : يوم المعلم "عرفان"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الثلاثاء 27/5 : أسبوع القراءة العربي "معرفة"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+<!-- أ. طاهر أحمد حمدي -->
+<div class="card" onclick="toggleDropdown('t13')">
+  <img src="https://i.postimg.cc/W1dX5fdN/image.jpg" alt="أيقونة المعلم">
+  <div>أ. طاهر أحمد حمدي</div>
+  <div id="t13" class="dropdown">
+    <div class="event"><p>📅 الأربعاء 16/4 : يوم المعلم "عرفان"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأربعاء 28/5 : أسبوع القراءة العربي "معرفة"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. س.إنجليزي -->
+<div class="card" onclick="toggleDropdown('t14')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. س.إنجليزي</div>
+  <div id="t14" class="dropdown">
+    <div class="event"><p>📅 الخميس 17/4 : يوم المعلم "عرفان"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الإثنين 5/5 : العلوم والتقنية STEAM "ابتكار"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الخميس 29/5 : أسبوع القراءة العربي "معرفة"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. حسين عبد التواب عبدالحميد -->
+<div class="card" onclick="toggleDropdown('t15')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. حسين عبد التواب عبدالحميد</div>
+  <div id="t15" class="dropdown">
+    <div class="event"><p>📅 الإثنين 7/4 : رواد فضاء المستقبل "آفاق"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الإثنين 19/5 : اكتشف مسارك "طموح"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. حسام الأصنعي عبد العزيز محمود -->
+<div class="card" onclick="toggleDropdown('t16')">
+  <img src="https://i.postimg.cc/NFTQ8xRp/image.jpg" alt="أيقونة المعلم">
+  <div>أ. حسام الأصنعي عبد العزيز محمود</div>
+  <div id="t16" class="dropdown">
+    <div class="event"><p>📅 الإثنين 30/3 : اليوم الوطني السعودي "انتماء"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الإثنين 24/6 : اليوم العالمي للغة العربية "بيان"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأربعاء 26/6 : اليوم العالمي للغة العربية "بيان"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. رامي حامد أبوزيد حسين -->
+<div class="card" onclick="toggleDropdown('t17')">
+  <img src="https://i.postimg.cc/1z2tpXLR/image.jpg" alt="أيقونة المعلم">
+  <div>أ. رامي حامد أبوزيد حسين</div>
+  <div id="t17" class="dropdown">
+    <div class="event"><p>📅 الأحد 15/3 : التطوع الطلابي "عطاء"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الثلاثاء 29/4 : الرياضات الإلكترونية والذهنية "تحدي"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الثلاثاء 18/6 : إنترنت الأشياء IOT "اتصال"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. ربيع عبد الله عبد النضير السمان -->
+<div class="card" onclick="toggleDropdown('t18')">
+  <img src="https://i.postimg.cc/0QKvxCXP/image.jpg" alt="أيقونة المعلم">
+  <div>أ. ربيع عبد الله عبد النضير السمان</div>
+  <div id="t18" class="dropdown">
+    <div class="event"><p>📅 الأربعاء 9/4 : رواد فضاء المستقبل "آفاق"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الثلاثاء 25/6 : اليوم العالمي للغة العربية "بيان"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الخميس 27/6 : اليوم العالمي للغة العربية "بيان"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. ماجد محمد محمد أبوسعدة -->
+<div class="card" onclick="toggleDropdown('t19')">
+  <img src="https://i.postimg.cc/RVdZgXjD/image.jpg" alt="أيقونة المعلم">
+  <div>أ. ماجد محمد محمد أبوسعدة</div>
+  <div id="t19" class="dropdown">
+    <div class="event"><p>📅 الإثنين 16/3 : التطوع الطلابي "عطاء"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأربعاء 30/4 : الرياضات الإلكترونية والذهنية "تحدي"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأربعاء 19/6 : إنترنت الأشياء IOT "اتصال"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. منصور عبدالله عيدان السلمي -->
+<div class="card" onclick="toggleDropdown('t20')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. منصور عبدالله عيدان السلمي</div>
+  <div id="t20" class="dropdown">
+    <div class="event"><p>📅 الثلاثاء 10/3 : افتتاح العام الدراسي الجديد "انطلاقة"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأربعاء 23/4 : سفير البيئة والمجتمع "مستدام"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. محمد أحمد علي غالي -->
+<div class="card" onclick="toggleDropdown('t21')">
+  <img src="https://i.postimg.cc/JzYSnkkn/image.jpg" alt="أيقونة المعلم">
+  <div>أ. محمد أحمد علي غالي</div>
+  <div id="t21" class="dropdown">
+    <div class="event"><p>📅 الأحد 6/4 : رواد فضاء المستقبل "آفاق"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الثلاثاء 20/5 : اكتشف مسارك "طموح"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. محمد أشرف عبد الجليل حجاج -->
+<div class="card" onclick="toggleDropdown('t22')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. محمد أشرف عبد الجليل حجاج</div>
+  <div id="t22" class="dropdown">
+    <div class="event"><p>📅 الأحد 13/4 : يوم المعلم "عرفان"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأحد 25/5 : أسبوع القراءة العربي "معرفة"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. محمد عرفات محمد إبراهيم -->
+<div class="card" onclick="toggleDropdown('t23')">
+  <img src="https://i.postimg.cc/TPwGNxry/image.jpg" alt="أيقونة المعلم">
+  <div>أ. محمد عرفات محمد إبراهيم</div>
+  <div id="t23" class="dropdown">
+    <div class="event"><p>📅 الأحد 22/3 : قيمنا حياة "أصالة"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأحد 11/5 : الموهبة والإبداع "تميز"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الإثنين 2/7 : الاختبارات الفصلية "استعد"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. محمد عنتر إبراهيم -->
+<div class="card" onclick="toggleDropdown('t24')">
+  <img src="https://i.postimg.cc/MZ04B4Qg/image.jpg" alt="أيقونة المعلم">
+  <div>أ. محمد عنتر إبراهيم</div>
+  <div id="t24" class="dropdown">
+    <div class="event"><p>📅 الأربعاء 11/3 : افتتاح العام الدراسي الجديد "انطلاقة"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الخميس 24/4 : سفير البيئة والمجتمع "مستدام"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. محمد سليمان سليم محمد -->
+<div class="card" onclick="toggleDropdown('t25')">
+  <img src="https://i.postimg.cc/fWX3f7zG/image.jpg" alt="أيقونة المعلم">
+  <div>أ. محمد سليمان سليم محمد</div>
+  <div id="t25" class="dropdown">
+    <div class="event"><p>📅 الثلاثاء 17/3 : التطوع الطلابي "عطاء"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الخميس 1/5 : الرياضات الإلكترونية والذهنية "تحدي"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. محمود جابر خليل عبدالحي -->
+<div class="card" onclick="toggleDropdown('t26')">
+  <img src="https://i.postimg.cc/9fT1hRPs/image.jpg" alt="أيقونة المعلم">
+  <div>أ. محمود جابر خليل عبدالحي</div>
+  <div id="t26" class="dropdown">
+    <div class="event"><p>📅 الثلاثاء 8/4 : رواد فضاء المستقبل "آفاق"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأحد 9/6 : الوعي الصحي "وقاية"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الإثنين 10/6 : الوعي الصحي "وقاية"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الثلاثاء 11/6 : الوعي الصحي "وقاية"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأربعاء 12/6 : الوعي الصحي "وقاية"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الخميس 13/6 : الوعي الصحي "وقاية"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. نايف بن علي بن عبد الله الغامدي -->
+<div class="card" onclick="toggleDropdown('t27')">
+  <img src="https://i.postimg.cc/VL8wQnqP/image.jpg" alt="أيقونة المعلم">
+  <div>أ. نايف بن علي بن عبد الله الغامدي</div>
+  <div id="t27" class="dropdown">
+    <div class="event"><p>📅 الثلاثاء 24/3 : قيمنا حياة "أصالة"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الثلاثاء 13/5 : الموهبة والإبداع "تميز"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. مصطفى عبد اللطيف أبو اليزيد عصفور -->
+<div class="card" onclick="toggleDropdown('t28')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. مصطفى عبد اللطيف أبو اليزيد عصفور</div>
+  <div id="t28" class="dropdown">
+    <div class="event"><p>📅 الإثنين 9/3 : افتتاح العام الدراسي الجديد "انطلاقة"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الثلاثاء 22/4 : سفير البيئة والمجتمع "مستدام"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. مصطفى شحات نافع أحمد -->
+<div class="card" onclick="toggleDropdown('t29')">
+  <img src="https://i.postimg.cc/W4Wpsz26/image.jpg" alt="أيقونة المعلم">
+  <div>أ. مصطفى شحات نافع أحمد</div>
+  <div id="t29" class="dropdown">
+    <div class="event"><p>📅 الأحد 8/3 : افتتاح العام الدراسي الجديد "انطلاقة"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الإثنين 9/7 : ختام برنامج الإذاعة المدرسية "حصاد"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. ياسر أحمد حبشي أحمد -->
+<div class="card" onclick="toggleDropdown('t30')">
+  <img src="https://i.postimg.cc/dDPtgfJb/image.jpg" alt="أيقونة المعلم">
+  <div>أ. ياسر أحمد حبشي أحمد</div>
+  <div id="t30" class="dropdown">
+    <div class="event"><p>📅 الأربعاء 25/3 : قيمنا حياة "أصالة"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الأربعاء 15/5 : الموهبة والإبداع "تميز"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- أ. إبراهيم محمد إبراهيم بغاغو -->
+<div class="card" onclick="toggleDropdown('t31')">
+  <img src="https://i.postimg.cc/mDnryDJ2/images.png" alt="أيقونة المعلم">
+  <div>أ. إبراهيم محمد إبراهيم بغاغو</div>
+  <div id="t31" class="dropdown">
+    <div class="event"><p>📅 الأربعاء 2/4 : اليوم الوطني السعودي "انتماء"</p>
+      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الثلاثاء 6/5 : العلوم والتقنية STEAM "ابتكار"</p>
+      <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+    <div class="event"><p>📅 الثلاثاء 3/7 : الاختبارات الفصلية "استعد"</p>
+      <div class="progress"><div class="progress-bar p-orange" style="width:0%;"></div></div>
+      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
+    </div>
+  </div>
+</div>
+
+
+</section>
+
+
+<h3 id="achievement-title" style="
+  text-align:center; 
+  font-weight:bold; 
+  font-size:32px; 
+  color:#2E8B57; 
+  cursor:pointer;
+  user-select:none;
+">
+  📊 جدول الإنجاز <span id="trophy" style="display:inline-block; transition: transform 0.2s;">🏆</span>
+</h3>
+
+<script>
+const title = document.getElementById('achievement-title');
+const trophy = document.getElementById('trophy');
+
+title.addEventListener('mouseenter', () => {
+  let jumps = 0;
+  const maxJumps = 6;
+  const interval = setInterval(() => {
+    const direction = jumps % 2 === 0 ? -1 : 1; // يتحرك للأعلى والأسفل
+    const scale = 1 + (maxJumps - jumps) * 0.05; // يقل حجم القفز تدريجيًا
+    trophy.style.transform = `translateY(${direction * 15}px) scale(${scale}) rotate(${direction * 15}deg)`;
+    jumps++;
+    if(jumps > maxJumps) {
+      trophy.style.transform = 'translateY(0) scale(1) rotate(0deg)';
+      clearInterval(interval);
+    }
+  }, 150);
+});
+</script>
+
+<table id="teacherTable">
+  <tr style="background-color:#2E8B57; color:white; font-weight:bold; text-align:center;">
+    <th>الأسبوع</th>
+    <th>الهدف</th>
+    <th>التقدم</th>
+    <th>المكافأة</th>
+    <th>تحكم</th>
+  </tr>
+</table>
+
+
+<script>
+// ⚡️ فقط المدير يغيّر هذا المتغير
+const isAdmin = false; // خليها false للمشاهدين
+
+// 🟢 القيم المخزنة يدويًا لكل أسبوع
+const progressValues = {
+  1: 0,   // الأسبوع الأول
+  2: 0,  // الأسبوع الثاني
+  3: 0,   // الأسبوع الثالث
+  4: 0,    // الأسبوع الرابع
+  5: 0,   // الأسبوع الخامس
+  6: 0,  // الأسبوع السادس
+  7: 0,   // الأسبوع السابع
+  8: 0,    // الأسبوع الثامن
+  9: 0,   // الأسبوع التاسع
+  10: 0,  // الأسبوع العاشر
+  11: 0,   // الأسبوع الحادي عشر
+  12: 0,    // الأسبوع الثاني عشر
+  13: 0,   // الأسبوع الثالث عشر
+  14: 0,  // الأسبوع الرابع عشر
+  15: 0,   // الأسبوع الخامس عشر
+  16: 0,    // الأسبوع السادس عشر
+  17: 0,   // الأسبوع السابع عشر
+  18: 0,  // الأسبوع الثامن عشر
+ 
+  // زوّد على كيفك...
+};
+
+const teachers = [
+   {id: 1, name: '  الأول', target: 100, reward: '🏅أفضل إذاعة للأسبوع: '},
+  {id: 2, name: ' الثاني', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
+  {id: 3, name: ' الثالث', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
+ {id: 4, name: 'الرابع', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
+  {id: 5, name: 'الخامس', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
+  {id: 6, name: 'السادس', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
+ {id: 7, name: 'السابع', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
+  {id: 8, name: 'الثامن', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
+  {id: 9, name: 'التاسع', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
+ {id: 10, name: 'العاشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
+  {id: 11, name: 'الحادي عشر', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
+  {id: 12, name: ' الثاني عشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
+ {id: 13, name: 'الثالث عشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
+  {id: 14, name: 'الرابع عشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
+  {id: 15, name: 'الخامس عشر ', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
+ {id: 16, name: 'السادس عشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
+  {id: 17, name: 'السابع عشر', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
+  {id: 18, name: 'الثامن عشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
+];
+
+teachers.forEach((teacher, index) => {
+  let points = progressValues[teacher.id] || 0;
+
+  const row = document.createElement('tr');
+  row.id = `row_${teacher.id}`;
+  row.style.backgroundColor = index % 2 === 0 ? '#f9f9f9' : '#e0f7fa';
+  row.innerHTML = `
+    <td>${teacher.name}</td>
+    <td>${teacher.target}</td>
+    <td>
+      <div style="width:100%; background-color:#ddd; border-radius:5px; height:20px; position:relative;">
+        <div id="progress_${teacher.id}" style="width:0%; height:100%; border-radius:5px; text-align:center; line-height:20px; color:white;">0%</div>
+      </div>
+    </td>
+    <td id="reward_${teacher.id}" style="color:black;">-</td>
+  `;
+  document.getElementById('teacherTable').appendChild(row);
+
+  const rewardEl = document.getElementById(`reward_${teacher.id}`);
+  const progressEl = document.getElementById(`progress_${teacher.id}`);
+
+  const updateUI = () => {
+    let percent = Math.round((points / teacher.target) * 100);
+    percent = percent > 100 ? 100 : percent;
+    progressEl.style.width = percent + '%';
+    progressEl.textContent = points + '/' + teacher.target;
+
+    if(percent <= 50){
+      progressEl.style.backgroundColor = '#f44336';
+      progressEl.style.color = '#fff';
+    } else if(percent <= 80){
+      progressEl.style.backgroundColor = '#ffeb3b';
+      progressEl.style.color = '#000';
+    } else {
+      progressEl.style.backgroundColor = '#4CAF50';
+      progressEl.style.color = '#fff';
+    }
+
+    if(percent >= 100){
+      rewardEl.textContent = teacher.reward;
+      rewardEl.style.color = 'green';
+      row.style.fontWeight = 'bold';
+    } else {
+      rewardEl.textContent = '-';
+      rewardEl.style.color = 'black';
+      row.style.fontWeight = 'normal';
+    }
+  };
+
+  updateUI(); // تحديث أولي
+});
+</script>
+
+
+</body>
+</html>
+
+
+<footer>
+<footer style="text-align:center; font-size:20px; margin-top:20px; color:#555;">
+  جميع الحقوق محفوظة &copy; 2025م<br>
+  تم التصميم بواسطة : @مصطفى نافع
+</footer>
+
+</footer>
