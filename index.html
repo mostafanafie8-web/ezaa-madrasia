@@ -783,25 +783,47 @@ const progressValues = {
 };
 
 const teachers = [
-  {id: 1, name: ' الأول', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
-  {id: 2, name: ' الثاني', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
-  {id: 3, name: ' الثالث', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
- {id: 4, name: 'الرابع', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
-  {id: 5, name: 'الخامس', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
-  {id: 6, name: 'السادس', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
- {id: 7, name: 'السابع', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
-  {id: 8, name: 'الثامن', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
-  {id: 9, name: 'التاسع', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
- {id: 10, name: 'العاشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
-  {id: 11, name: 'الحادي عشر', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
-  {id: 12, name: ' الثاني عشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
- {id: 13, name: 'الثالث عشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
-  {id: 14, name: 'الرابع عشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
-  {id: 15, name: 'الخامس عشر ', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
- {id: 16, name: 'السادس عشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
-  {id: 17, name: 'السابع عشر', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
-  {id: 18, name: 'الثامن عشر', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
+  {id: 1, name: 'الأول', target: 100, reward: ''},
+  {id: 2, name: 'الثاني', target: 100, reward: ''},
+  {id: 3, name: 'الثالث', target: 100, reward: ''},
+  {id: 4, name: 'الرابع', target: 100, reward: ''},
+  {id: 5, name: 'الخامس', target: 100, reward: ''},
+  {id: 6, name: 'السادس', target: 100, reward: ''},
+  {id: 7, name: 'السابع', target: 100, reward: ''},
+  {id: 8, name: 'الثامن', target: 100, reward: ''},
+  {id: 9, name: 'التاسع', target: 100, reward: ''},
+  {id: 10, name: 'العاشر', target: 100, reward: ''},
+  {id: 11, name: 'الحادي عشر', target: 100, reward: ''},
+  {id: 12, name: 'الثاني عشر', target: 100, reward: ''},
+  {id: 13, name: 'الثالث عشر', target: 100, reward: ''},
+  {id: 14, name: 'الرابع عشر', target: 100, reward: ''},
+  {id: 15, name: 'الخامس عشر', target: 100, reward: ''},
+  {id: 16, name: 'السادس عشر', target: 100, reward: ''},
+  {id: 17, name: 'السابع عشر', target: 100, reward: ''},
+  {id: 18, name: 'الثامن عشر', target: 100, reward: ''},
 ];
+
+// قيم افتراضية للتقدم
+const progressValues = {
+  1: 40,
+  2: 70,
+  3: 100,
+  4: 85,
+  5: 20,
+  6: 95,
+  7: 60,
+  8: 10,
+  9: 100,
+  10: 75,
+  11: 90,
+  12: 55,
+  13: 35,
+  14: 100,
+  15: 80,
+  16: 65,
+  17: 50,
+  18: 30
+};
 
 teachers.forEach((teacher, index) => {
   let points = progressValues[teacher.id] || 0;
@@ -817,11 +839,18 @@ teachers.forEach((teacher, index) => {
         <div id="progress_${teacher.id}" style="width:0%; height:100%; border-radius:5px; text-align:center; line-height:20px; color:white;">0%</div>
       </div>
     </td>
-    <td id="reward_${teacher.id}" style="color:black;">-</td>
+    <td>
+      <input 
+        type="text" 
+        id="reward_${teacher.id}" 
+        placeholder="أدخل المكافأة" 
+        value="${teacher.reward}" 
+        style="width: 90%; padding:3px; border:1px solid #ccc; border-radius:4px; text-align:center;"
+      />
+    </td>
   `;
   document.getElementById('teacherTable').appendChild(row);
 
-  const rewardEl = document.getElementById(`reward_${teacher.id}`);
   const progressEl = document.getElementById(`progress_${teacher.id}`);
 
   const updateUI = () => {
@@ -839,16 +868,6 @@ teachers.forEach((teacher, index) => {
     } else {
       progressEl.style.backgroundColor = '#4CAF50';
       progressEl.style.color = '#fff';
-    }
-
-    if(percent >= 100){
-      rewardEl.textContent = teacher.reward;
-      rewardEl.style.color = 'green';
-      row.style.fontWeight = 'bold';
-    } else {
-      rewardEl.textContent = '-';
-      rewardEl.style.color = 'black';
-      row.style.fontWeight = 'normal';
     }
   };
 
