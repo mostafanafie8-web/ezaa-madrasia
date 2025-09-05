@@ -197,9 +197,11 @@ updateCountdown();
   <div>أ. أحمد مصطفى عبد الفتاح زهران</div>
   <div id="t4" class="dropdown">
     <div class="event"><p>📅 الخميس 12/3 : افتتاح العام الدراسي الجديد "انطلاقة"</p>
-      <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
-      <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
-    </div>
+            <div class="progress"><div class="progress-bar p-green" style="width:0%;"></div></div>
+<div class="slider-container">
+  <input type="range" value="97" disabled style="accent-color:#4caf50;">
+  <span style="color:#4caf50; font-weight:bold;">83%</span>
+</div></div>
     <div class="event"><p>📅 الإثنين 28/4 : الرياضات الإلكترونية والذهنية "تحدي"</p>
       <div class="progress"><div class="progress-bar p-blue" style="width:0%;"></div></div>
       <div class="slider-container"><input type="range" value="0" disabled><span class="percent">0%</span></div>
@@ -758,7 +760,7 @@ const isAdmin = false; // خليها false للمشاهدين
 
 // 🟢 القيم المخزنة يدويًا لكل أسبوع
 const progressValues = {
-  1: 0,   // الأسبوع الأول
+  1: 92,   // الأسبوع الأول
   2: 0,  // الأسبوع الثاني
   3: 0,   // الأسبوع الثالث
   4: 0,    // الأسبوع الرابع
@@ -781,7 +783,7 @@ const progressValues = {
 };
 
 const teachers = [
-   {id: 1, name: '  الأول', target: 100, reward: '🏅أفضل إذاعة للأسبوع: '},
+   {id: 1, name: '  الأول', target: 100, reward: '🏅أفضل إذاعة للأسبوع:الأستاذ محمد عنتر البحراوي '},
   {id: 2, name: ' الثاني', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
   {id: 3, name: ' الثالث', target: 100, reward: '🏅 أفضل إذاعة للأسبوع:'},
  {id: 4, name: 'الرابع', target: 100, reward: '🏅أفضل إذاعة للأسبوع:'},
