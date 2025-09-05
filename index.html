@@ -783,7 +783,7 @@ const progressValues = {
 };
 
 const teachers = [
-  {id: 1, name: 'الأول', target: 100, reward: ''},
+  {id: 1, name: 'الأول', target: 100, reward: 'أفضل إذاعة محمد البحراوي'},
   {id: 2, name: 'الثاني', target: 100, reward: ''},
   {id: 3, name: 'الثالث', target: 100, reward: ''},
   {id: 4, name: 'الرابع', target: 100, reward: ''},
@@ -803,27 +803,6 @@ const teachers = [
   {id: 18, name: 'الثامن عشر', target: 100, reward: ''},
 ];
 
-// قيم افتراضية للتقدم
-const progressValues = {
-  1: 40,
-  2: 70,
-  3: 100,
-  4: 85,
-  5: 20,
-  6: 95,
-  7: 60,
-  8: 10,
-  9: 100,
-  10: 75,
-  11: 90,
-  12: 55,
-  13: 35,
-  14: 100,
-  15: 80,
-  16: 65,
-  17: 50,
-  18: 30
-};
 
 teachers.forEach((teacher, index) => {
   let points = progressValues[teacher.id] || 0;
